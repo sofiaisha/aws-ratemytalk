@@ -17,33 +17,17 @@ def getMyTalks(event, context):
     dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
     table = dynamodb.Table('RateMyTalkSessions')
 
-    intent = event['request']['intent']['name']
+    intent = event['currentIntent']['name']
+    session_name = event['currentIntent']['slots']['sessionName']
+    session_date = event['currentIntent']['slots']['sessionDame']
 
     if intent == 'RateTalk':
         lookup_val = datetime.now() - timedelta(months=1)
         lookup_val = lookup_val.strftime("%Y-%m-%d")
         add_tomorrow = ' tomorrow'
 
-    try:
-        response = table.scan(
-            FilterExpression=Attr('session_date').gte(lookup_val)
-        )
-        items = response['Items']
-        print items 
-
-
-    except ClientError as e:
-        logger.error(e.response['Error']['Message'])
-        raise SystemExit
-    else:
-        item = response[u'Items']
-
-        for item in response['Items']:
-            session_time = item['timestamp']
-            speaker = item['speaker']
-            session_name = item['session_name']
-
-        logger.info(item)
+    if session_date:
+        mySession = getSession(session_date)
 
         if item:
             session_time = datetime.fromtimestamp(session_time).strftime('%B %d at %H:%M')
@@ -68,3 +52,27 @@ def getMyTalks(event, context):
                 'shouldEndSession': True
               }
         }
+
+def getSession(session_date):
+    try:
+        response = table.scan(
+            FilterExpression=Attr('session_date').gte(lookup_val)
+        )
+        items = response['Items']
+        print items
+
+
+    except ClientError as e:
+        logger.error(e.response['Error']['Message'])
+        raise SystemExit
+    else:
+        item = response[u'Items']
+
+        for item in response['Items']:
+            session_time = item['timestamp']
+            speaker = item['speaker']
+            session_name = item['session_name']
+
+        logger.info(item)
+
+        return item
