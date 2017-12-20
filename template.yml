@@ -12,7 +12,7 @@ Resources:
   HelloWorld:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: index.handler
+      Handler: getTalks.getMyTalks
       Runtime: python2.7
       Role:
         Fn::ImportValue:
