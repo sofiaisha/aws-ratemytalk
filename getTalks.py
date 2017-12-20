@@ -19,7 +19,7 @@ def getMyTalks(event, context):
 
     intent = event['currentIntent']['name']
     session_name = event['currentIntent']['slots']['sessionName']
-    session_date = event['currentIntent']['slots']['sessionDame']
+    session_date = event['currentIntent']['slots']['sessionDate']
 
     if intent == 'RateTalk':
         lookup_val = datetime.now() - timedelta(months=1)
