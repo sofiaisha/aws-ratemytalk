@@ -25,11 +25,11 @@ def getMyTalks(event, context):
         add_tomorrow = ' tomorrow'
 
     try:
-    response = table.scan(
-        FilterExpression=Attr('session_date').gte(lookup_val)
-    )
-    items = response['Items']
-    print items 
+        response = table.scan(
+            FilterExpression=Attr('session_date').gte(lookup_val)
+        )
+        items = response['Items']
+        print items 
 
 
     except ClientError as e:
