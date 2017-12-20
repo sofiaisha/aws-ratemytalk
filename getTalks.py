@@ -22,9 +22,8 @@ def getMyTalks(event, context):
     session_date = event['currentIntent']['slots']['sessionDate']
 
     if intent == 'RateTalk':
-        lookup_val = datetime.now() - timedelta(months=1)
+        lookup_val = datetime.now() - timedelta(days=30)
         lookup_val = lookup_val.strftime("%Y-%m-%d")
-        add_tomorrow = ' tomorrow'
 
     if session_date:
         mySession = getSession(session_date)
