@@ -27,6 +27,24 @@ def getMyTalks(event, context):
         mySession = getSession(session_date)
         logger.info('My Sessions: ' + json.dumps(mySession))
 
+        if not mySession:
+            return {
+                "dialogAction": {
+                    "type": "ElicitSlot",
+                    "message": {
+                        "contentType": "PlainText",
+                        "content": "There is no sessions in this timeframe. Please specify a session date from the last month."
+                    },
+                    "intentName": "RateTalk",
+                    "slots": {
+                        "sessionName": session_name,
+                        "sessionDate": session_date,
+                        "sessionScore": session_score
+                    },
+                    "slotToElicit" : "sessionDate"
+                }
+            }
+
     if session_date and session_name and sessionScore>0:
         if item:
             session_time = datetime.fromtimestamp(session_time).strftime('%B %d at %H:%M')
@@ -81,13 +99,16 @@ def getSession(session_date):
         logger.error(e.response['Error']['Message'])
         raise SystemExit
     else:
-        item = response[u'Items']
+        if items:
+            item = response[u'Items']
 
-        for item in response['Items']:
-            session_time = item['timestamp']
-            speaker = item['speaker']
-            session_name = item['session_name']
+            for item in response['Items']:
+                session_time = item['timestamp']
+                speaker = item['speaker']
+                session_name = item['session_name']
 
-        logger.info(item)
+                logger.info(item)
 
-        return item
+            return item
+        else:
+            return 'null'
