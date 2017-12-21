@@ -28,6 +28,7 @@ def getMyTalks(event, context):
     if session_date:
         mySession = getSession(session_date)
 
+    if session_date and session_name and sessionScore>0:
         if item:
             session_time = datetime.fromtimestamp(session_time).strftime('%B %d at %H:%M')
             content = 'Next session%s in the AWS Tel Aviv Loft is:  %s at %s' % (add_tomorrow, item['session_name'], session_time)
@@ -48,7 +49,7 @@ def getMyTalks(event, context):
                   'title': 'AWS Pop-up Loft Tel Aviv Sessions',
                   'content': content
                 },
-                'shouldEndSession': True
+                'shouldEndSession': False
               }
         }
 
