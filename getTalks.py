@@ -119,7 +119,7 @@ def getSession(session_date):
             item = response[u'Items']
             buttons = ''
 
-            for item in response['Items']:
+            for item in response[u'Items']:
                 if buttons!='':
                     buttons += ","
 
