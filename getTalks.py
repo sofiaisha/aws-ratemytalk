@@ -71,7 +71,7 @@ def getSession(session_date):
 
     try:
         response = table.scan(
-            FilterExpression=Attr('session_date').gte(lookup_val)
+            FilterExpression=Attr('session_date').gte(session_date)
         )
         items = response['Items']
         print items
