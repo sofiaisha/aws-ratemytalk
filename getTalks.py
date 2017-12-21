@@ -45,6 +45,32 @@ def getMyTalks(event, context):
                 }
             }
 
+        else:
+            return {
+                "sessionAttributes": {},
+                "dialogAction": {
+                    "type": "Delegate",
+                    "slots": {
+                        "sessionName": session_name,
+                        "sessionDate": session_date,
+                        "sessionScore": session_score
+                    }
+                },
+                "responseCard": {
+                    "version": 1,
+                    "contentType": "application/vnd.amazonaws.card.generic",
+                    "genericAttachments": [
+                    {
+                        "title": "Availible Sessions",
+                        "subtitle": "Please select the session you would like to rate.",
+                        "buttons": [
+                        "%s"
+                        ]
+                    }
+                    ]
+                }
+            } % (buttons)
+
     if session_date and session_name and session_score>0:
         if item:
             session_time = datetime.fromtimestamp(session_time).strftime('%B %d at %H:%M')
@@ -53,30 +79,7 @@ def getMyTalks(event, context):
             content = 'I could not find anymore sessions for today. You can ask me to lookup for the next session tomorrow.'
 
         logger.info('Responding with: ' + content)
-        return {
-            "sessionAttributes": {},
-            "dialogAction": {
-                "type": "Delegate",
-                "slots": {
-                    "sessionName": session_name,
-                    "sessionDate": session_date,
-                    "sessionScore": session_score
-                }
-            },
-            "responseCard": {
-                "version": 1,
-                "contentType": "application/vnd.amazonaws.card.generic",
-                "genericAttachments": [
-                {
-                    "title": "Availible Sessions",
-                    "subtitle": "Please select the session you would like to rate.",
-                    "buttons": [
-                    "%s"
-                    ]
-                }
-                ]
-            }
-        } % (buttons)
+
     else:
         logger.info('Responding with: dialogAction type Delegate')
         return {
