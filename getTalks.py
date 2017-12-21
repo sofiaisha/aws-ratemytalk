@@ -14,9 +14,6 @@ def getMyTalks(event, context):
     #return event
     logger.info('Received event: ' + json.dumps(event))
 
-    dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
-    table = dynamodb.Table('RateMyTalkSessions')
-
     intent = event['currentIntent']['name']
     session_name = event['currentIntent']['slots']['sessionName']
     session_date = event['currentIntent']['slots']['sessionDate']
@@ -69,6 +66,9 @@ def getMyTalks(event, context):
         }
 
 def getSession(session_date):
+    dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+    table = dynamodb.Table('RateMyTalkSessions')
+
     try:
         response = table.scan(
             FilterExpression=Attr('session_date').gte(lookup_val)
