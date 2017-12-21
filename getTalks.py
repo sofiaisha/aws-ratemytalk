@@ -45,7 +45,7 @@ def getMyTalks(event, context):
                 }
             }
 
-    if session_date and session_name and sessionScore>0:
+    if session_date and session_name and session_score>0:
         if item:
             session_time = datetime.fromtimestamp(session_time).strftime('%B %d at %H:%M')
             content = 'Next session%s in the AWS Tel Aviv Loft is:  %s at %s' % (add_tomorrow, item['session_name'], session_time)
