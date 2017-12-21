@@ -27,7 +27,7 @@ def getMyTalks(event, context):
         mySession = getSession(session_date)
         logger.info('My Sessions: ' + json.dumps(mySession))
 
-        if not mySession:
+        if mySession == 'null':
             return {
                 "dialogAction": {
                     "type": "ElicitSlot",
