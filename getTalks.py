@@ -25,7 +25,7 @@ def getMyTalks(event, context):
 
     if session_date:
         mySession = getSession(session_date)
-        logger.info('My Sessions: ' + json.dumps(mySession))
+        logger.info('My Sessions: ' mySession)
 
         if mySession == 'null':
             return {
@@ -54,20 +54,20 @@ def getMyTalks(event, context):
                         "sessionName": session_name,
                         "sessionDate": session_date,
                         "sessionScore": session_score
-                    }
-                },
-                "responseCard": {
-                    "version": 1,
-                    "contentType": "application/vnd.amazonaws.card.generic",
-                    "genericAttachments": [
-                    {
-                        "title": "Availible Sessions",
-                        "subtitle": "Please select the session you would like to rate.",
-                        "buttons": [
-                        mySession
+                    },
+                    "responseCard": {
+                        "version": 1,
+                        "contentType": "application/vnd.amazonaws.card.generic",
+                        "genericAttachments": [
+                        {
+                            "title": "Availible Sessions",
+                            "subtitle": "Please select the session you would like to rate.",
+                            "buttons": [
+                            mySession
+                            ]
+                        }
                         ]
                     }
-                    ]
                 }
             }
 
@@ -121,7 +121,6 @@ def getSession(session_date):
                 session_name = item['session_name']
                 buttons += '{"text": "%s","value": "%s"}' % (session_name, session_name)
 
-            logger.info(buttons)
             return buttons
         else:
             return 'null'
