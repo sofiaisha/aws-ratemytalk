@@ -54,16 +54,13 @@ def getMyTalks(event, context):
               }
         }
     else:
-        content = ''
-        logger.info('Responding with: ' + content)
+        logger.info('Responding with: dialogAction type Delegate')
         return {
-            'version': '1.0',
             'sessionAttributes': {},
             'dialogAction': {
                 'type': 'Delegate',
                 'slots': {}
-            },
-            'shouldEndSession': False
+            }
         }
 
 def getSession(session_date):
