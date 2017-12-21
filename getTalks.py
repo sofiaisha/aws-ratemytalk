@@ -65,6 +65,7 @@ def getMyTalks(event, context):
             }
             'shouldEndSession': False
         }
+    }
 
 def getSession(session_date):
     try:
