@@ -46,7 +46,7 @@ def getMyTalks(event, context):
             }
 
         else:
-            return {
+            response = '{
                 "sessionAttributes": {},
                 "dialogAction": {
                     "type": "Delegate",
@@ -64,12 +64,13 @@ def getMyTalks(event, context):
                         "title": "Availible Sessions",
                         "subtitle": "Please select the session you would like to rate.",
                         "buttons": [
-                        "%s"
+                        " %s "
                         ]
                     }
                     ]
                 }
-            } % (mySession)
+            }' % (mySession)
+            return response
 
     if session_date and session_name and session_score>0:
         if item:
