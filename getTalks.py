@@ -20,6 +20,7 @@ def getMyTalks(event, context):
     intent = event['currentIntent']['name']
     session_name = event['currentIntent']['slots']['sessionName']
     session_date = event['currentIntent']['slots']['sessionDate']
+    session_score = event['currentIntent']['slots']['sessionScore']
 
     if intent == 'RateTalk':
         lookup_val = datetime.now() - timedelta(days=30)
@@ -59,7 +60,11 @@ def getMyTalks(event, context):
             'sessionAttributes': {},
             'dialogAction': {
                 'type': 'Delegate',
-                'slots': {}
+                'slots': {
+                    'sessionName': session_name,
+                    'sessionDate': session_date,
+                    'sessionScore': session_score
+                }
             }
         }
 
