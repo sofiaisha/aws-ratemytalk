@@ -114,9 +114,9 @@ def getSession(session_date):
                 if buttons!='null':
                     buttons += ","
 
-                buttons += '{"text": "%s","value": "%s"}' % (session_name, session_name)
                 session_date = item['session_date']
                 session_name = item['session_name']
+                buttons += '{"text": "%s","value": "%s"}' % (session_name, session_name)
 
             logger.info(buttons)
             return buttons
