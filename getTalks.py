@@ -33,12 +33,12 @@ def getMyTalks(event, context):
                     "type": "ElicitSlot",
                     "message": {
                         "contentType": "PlainText",
-                        "content": "There is no sessions in this timeframe. Please specify a session date from the last month."
+                        "content": "There are no sessions in this timeframe. Please specify a session date from the last month."
                     },
                     "intentName": "RateTalk",
                     "slots": {
                         "sessionName": session_name,
-                        "sessionDate": session_date,
+                        "sessionDate": 'null',
                         "sessionScore": session_score
                     },
                     "slotToElicit" : "sessionDate"
@@ -54,21 +54,29 @@ def getMyTalks(event, context):
 
         logger.info('Responding with: ' + content)
         return {
-              'version': '1.0',
-              'sessionAttributes': {},
-              'response': {
-                'outputSpeech': {
-                  'type': 'PlainText',
-                  'text': content
-                },
-                'card': {
-                  'type': 'Simple',
-                  'title': 'AWS Pop-up Loft Tel Aviv Sessions',
-                  'content': content
-                },
-                'shouldEndSession': False
-              }
-        }
+            "sessionAttributes": {},
+            "dialogAction": {
+                "type": "Delegate",
+                "slots": {
+                    "sessionName": session_name,
+                    "sessionDate": session_date,
+                    "sessionScore": session_score
+                }
+            }
+            "responseCard": {
+                "version": 1,
+                "contentType": "application/vnd.amazonaws.card.generic",
+                "genericAttachments": [
+                {
+                    "title": "Availible Sessions",
+                    "subtitle": "Please select the session you would like to rate.",
+                    "buttons": [
+                    "%s"
+                    ]
+                }
+                ]
+            }
+        } % (buttons)
     else:
         logger.info('Responding with: dialogAction type Delegate')
         return {
@@ -92,7 +100,6 @@ def getSession(session_date):
             FilterExpression=Attr('session_date').gte(session_date)
         )
         items = response['Items']
-        print items
 
 
     except ClientError as e:
@@ -103,12 +110,17 @@ def getSession(session_date):
             item = response[u'Items']
 
             for item in response['Items']:
-                session_time = item['timestamp']
-                speaker = item['speaker']
+                if buttons:
+                    buttons += ","
+
+                buttons += '{
+                  "text": "%s",
+                  "value": "%s"
+                }' % (session_name, session_name)
+                session_date = item['session_date']
                 session_name = item['session_name']
 
-                logger.info(item)
-
-            return item
+            logger.info(buttons)
+            return buttons
         else:
             return 'null'
