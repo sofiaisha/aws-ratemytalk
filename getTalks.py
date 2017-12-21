@@ -69,7 +69,7 @@ def getMyTalks(event, context):
                     }
                     ]
                 }
-            } % (buttons)
+            } % (mySession)
 
     if session_date and session_name and session_score>0:
         if item:
@@ -111,10 +111,10 @@ def getSession(session_date):
     else:
         if items:
             item = response[u'Items']
-            buttons = 'null'
+            buttons = ''
 
             for item in response['Items']:
-                if buttons!='null':
+                if buttons!='':
                     buttons += ","
 
                 session_date = item['session_date']
