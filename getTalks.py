@@ -49,12 +49,18 @@ def getMyTalks(event, context):
             return {
                 "sessionAttributes": {},
                 "dialogAction": {
-                    "type": "Delegate",
+                    "type": "ElicitSlot",
+                    "message": {
+                        "contentType": "PlainText",
+                        "content": "Please select a session from the next cards."
+                    },
+                    "intentName": "RateTalk",
                     "slots": {
                         "sessionName": session_name,
-                        "sessionDate": session_date,
+                        "sessionDate": 'null',
                         "sessionScore": session_score
                     },
+                    "slotToElicit" : "sessionName",
                     "responseCard": {
                         "version": 1,
                         "contentType": "application/vnd.amazonaws.card.generic",
