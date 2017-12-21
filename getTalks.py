@@ -57,20 +57,13 @@ def getMyTalks(event, context):
         content = ''
         logger.info('Responding with: ' + content)
         return {
-              'version': '1.0',
-              'sessionAttributes': {},
-              'response': {
-                'outputSpeech': {
-                  'type': 'PlainText',
-                  'text': content
-                },
-                'card': {
-                  'type': 'Simple',
-                  'title': 'My Sessions List',
-                  'content': content
-                },
-                'shouldEndSession': False
-              }
+            'version': '1.0',
+            'sessionAttributes': {},
+            'dialogAction': {
+                'type': 'Delegate',
+                'slots': {}
+            }
+            'shouldEndSession': False
         }
 
 def getSession(session_date):
