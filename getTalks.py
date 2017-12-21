@@ -108,15 +108,13 @@ def getSession(session_date):
     else:
         if items:
             item = response[u'Items']
+            buttons = 'null'
 
             for item in response['Items']:
-                if buttons:
+                if buttons!='null':
                     buttons += ","
 
-                buttons += "{
-                  'text': '%s',
-                  'value': '%s'
-                }" % (session_name, session_name)
+                buttons += '{"text": "%s","value": "%s"}' % (session_name, session_name)
                 session_date = item['session_date']
                 session_name = item['session_name']
 
