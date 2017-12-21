@@ -62,10 +62,9 @@ def getMyTalks(event, context):
             'dialogAction': {
                 'type': 'Delegate',
                 'slots': {}
-            }
+            },
             'shouldEndSession': False
         }
-    }
 
 def getSession(session_date):
     try:
