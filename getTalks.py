@@ -62,7 +62,7 @@ def getMyTalks(event, context):
                     "sessionDate": session_date,
                     "sessionScore": session_score
                 }
-            }
+            },
             "responseCard": {
                 "version": 1,
                 "contentType": "application/vnd.amazonaws.card.generic",
