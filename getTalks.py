@@ -27,6 +27,7 @@ def getMyTalks(event, context):
 
     if session_date:
         mySession = getSession(session_date)
+        logger.info('My Sessions: ' + json.dumps(mySession))
 
     if session_date and session_name and sessionScore>0:
         if item:
