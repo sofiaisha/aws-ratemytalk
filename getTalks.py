@@ -46,30 +46,7 @@ def getMyTalks(event, context):
             }
 
         else:
-            return {
-                "sessionAttributes": {},
-                "dialogAction": {
-                    "type": "ElicitSlot",
-                    "message": {
-                        "contentType": "PlainText",
-                        "content": "Please select a session from the next cards."
-                    },
-                    "intentName": "RateTalk",
-                    "slots": {
-                        "sessionName": session_name,
-                        "sessionDate": 'null',
-                        "sessionScore": session_score
-                    },
-                    "slotToElicit" : "sessionName",
-                    "responseCard": {
-                        "version": 1,
-                        "contentType": "application/vnd.amazonaws.card.generic",
-                        "genericAttachments": [
-                            mySession
-                        ]
-                    }
-                }
-            }
+            return sessionCards (mySession)
 
     if session_date and session_name and session_score>0:
         if item:
@@ -129,3 +106,28 @@ def getSession(session_date):
                     }
         else:
             return 'null'
+
+def sessionCards (mySession):
+    return {
+        "dialogAction": {
+            "type": "ElicitSlot",
+            "message": {
+                "contentType": "PlainText",
+                "content": "Please select a session from the next cards."
+            },
+            "intentName": "RateTalk",
+            "slots": {
+                "sessionName": session_name,
+                "sessionDate": 'null',
+                "sessionScore": session_score
+            },
+            "slotToElicit" : "sessionName",
+            "responseCard": {
+                "version": 1,
+                "contentType": "application/vnd.amazonaws.card.generic",
+                "genericAttachments": [
+                    mySession
+                ]
+            }
+        }
+    }
