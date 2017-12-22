@@ -25,7 +25,7 @@ def getMyTalks(event, context):
 
     if session_date:
         mySession = getSession(session_date)
-        logger.info('My Sessions: ' + mySession)
+        logger.info(mySession)
 
         if mySession == 'null':
             return {
