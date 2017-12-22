@@ -125,8 +125,8 @@ def getSession(session_date):
 
                 session_date = item['session_date']
                 session_name = item['session_name']
-                buttons += '{"text": "%s","value": "%s"}' % (session_name, session_name)
+                buttons += '{"text": "%s",\n"value": "%s"}' % (session_name, session_name)
 
-            return buttons
+            return json(buttons)
         else:
             return 'null'
