@@ -102,7 +102,7 @@ def getSession(session_date):
         response = table.scan(
             FilterExpression=Attr('session_date').gte(session_date)
         )
-        items = response['Items']
+        items = response[u'Items']
 
 
     except ClientError as e:
