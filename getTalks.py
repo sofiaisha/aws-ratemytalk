@@ -112,13 +112,13 @@ def getSession(session_date):
         if items:
             buttons = ''
 
-            for item in response[u'Items']:
+            for item in items:
                 if buttons!='':
                     buttons += ","
 
                 session_date = item['session_date']
                 session_name = item['session_name']
-                buttons += '{\n"text": "%s",\n"value": "%s"\n}' % (session_name, session_name)
+                buttons += '{"text": "%s","value": "%s"}' % (session_name, session_name)
 
             return {
                         "title": "Availible Sessions",
