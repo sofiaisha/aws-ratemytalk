@@ -117,9 +117,9 @@ def sessionCards (mySession):
             },
             "intentName": "RateTalk",
             "slots": {
-                "sessionName": session_name,
+                "sessionName": 'null',
                 "sessionDate": 'null',
-                "sessionScore": session_score
+                "sessionScore": 'null'
             },
             "slotToElicit" : "sessionName",
             "responseCard": {
