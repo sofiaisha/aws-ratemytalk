@@ -65,13 +65,7 @@ def getMyTalks(event, context):
                         "version": 1,
                         "contentType": "application/vnd.amazonaws.card.generic",
                         "genericAttachments": [
-                        {
-                            "title": "Availible Sessions",
-                            "subtitle": "Please select the session you would like to rate.",
-                            "buttons": [
                             mySession
-                            ]
-                        }
                         ]
                     }
                 }
@@ -116,7 +110,6 @@ def getSession(session_date):
         raise SystemExit
     else:
         if items:
-            item = response[u'Items']
             buttons = ''
 
             for item in response[u'Items']:
@@ -125,8 +118,14 @@ def getSession(session_date):
 
                 session_date = item['session_date']
                 session_name = item['session_name']
-                buttons += '{"text": "%s",\n"value": "%s"}' % (session_name, session_name)
+                buttons += '{\n"text": "%s",\n"value": "%s"\n}' % (session_name, session_name)
 
-            return json(buttons)
+            return {
+                        "title": "Availible Sessions",
+                        "subtitle": "Please select the session you would like to rate.",
+                        "buttons": [
+                            buttons
+                        ]
+                    }
         else:
             return 'null'
