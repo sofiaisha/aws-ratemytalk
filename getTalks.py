@@ -96,7 +96,7 @@ def getSession(session_date):
         items = response[u'Items']
 
         buttons = []
-        
+
         if items:
             for item in items:
                 buttons.append(item['session_name'])
@@ -132,7 +132,7 @@ def getMyTalks(event, context):
 
         else:
             return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionDate',
-                {'contentType': 'PlainText', 'content': 'There are no sessions in this timeframe. Please specify a session date from the last month.'} )
+                {'contentType': 'PlainText', 'content': 'There are no sessions in this timeframe. Please specify a session date from the last month.'}, None)
 
 
     if session_date and session_name and session_score>0:
