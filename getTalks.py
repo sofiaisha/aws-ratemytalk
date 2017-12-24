@@ -137,13 +137,8 @@ def getMyTalks(event, context):
 
 
     if session_date and session_name and session_score>0:
-        if item:
-            session_time = datetime.fromtimestamp(session_time).strftime('%B %d at %H:%M')
-            content = 'Next session%s in the AWS Tel Aviv Loft is:  %s at %s' % (add_tomorrow, item['session_name'], session_time)
-        else:
-            content = 'I could not find anymore sessions for today. You can ask me to lookup for the next session tomorrow.'
-
-        logger.info('Responding with: ' + content)
+        confirm_intent(None, intent, event['currentIntent']['slots'],
+        {'contentType': 'PlainText', 'content': 'Are you sure with sending the score %s for the session %s on %s?' % (session_score, session_name, session_date)}, None)
 
     else:
         logger.info('Responding with: dialogAction type Delegate')
