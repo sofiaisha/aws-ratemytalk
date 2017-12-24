@@ -1,4 +1,4 @@
-##Amazon Lex Rate My Talk ChatBot
+## Amazon Lex Rate My Talk ChatBot
 A Demo ChatBot using Amazon Lex to collect session reviews from attendees attending my talks around the world.
 
 The ChatBot is using:
