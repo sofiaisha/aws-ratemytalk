@@ -137,10 +137,12 @@ def getMyTalks(event, context):
 
 
     if session_date and session_name and session_score:
-        logger.info(event['currentIntent']['slots'])
-        return confirm_intent(None, intent, event['currentIntent']['slots'],
-        {'contentType': 'PlainText', 'content': 'Are you sure with sending the score %s for the session %s on %s?' % (session_score, session_name, session_date)}, None)
-
+        if event['currentIntent']['confirmationStatus']!= 'Confirmed':
+            return confirm_intent(None, intent, event['currentIntent']['slots'],
+            {'contentType': 'PlainText', 'content': 'Are you OK with sending the score %s for the session %s on %s?' % (session_score, session_name, session_date)}, None)
+        else:
+            return close(None, 'Complete',
+            {'contentType': 'PlainText', 'content': 'Thank you for rating the session!'})    
     else:
         logger.info('Responding with: dialogAction type Delegate')
         return delegate(None, event['currentIntent']['slots'])
