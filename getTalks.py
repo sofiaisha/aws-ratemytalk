@@ -95,20 +95,16 @@ def getSession(session_date):
         )
         items = response[u'Items']
 
-
-    except ClientError as e:
-        logger.error(e.response['Error']['Message'])
-        return None
-    else:
         if items:
             buttons = []
             for item in items:
                 buttons.append(item['session_name'])
 
         return buttons
-
-        else:
-            return None
+    
+    except ClientError as e:
+        logger.error(e.response['Error']['Message'])
+        return None
 
 def getMyTalks(event, context):
     #return event
