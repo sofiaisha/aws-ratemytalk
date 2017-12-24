@@ -102,10 +102,11 @@ def getSession(session_date):
     else:
         if items:
             buttons = []
-
             for item in items:
                 buttons.append(item['session_name'])
+
         return buttons
+
         else:
             return None
 
@@ -127,7 +128,7 @@ def getMyTalks(event, context):
         logger.info(mySession)
 
         if mySession:
-            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionName', 
+            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionName',
             {'contentType': 'PlainText', 'content': 'Please select a session from the next cards.'},
             build_response_card('Availible Sessions', 'Please select the session you would like to rate.', build_options(mySession))
             )
