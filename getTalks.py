@@ -94,6 +94,7 @@ def getSession(session_date):
             FilterExpression=Attr('session_date').gte(session_date)
         )
         items = response[u'Items']
+        logger.debug(items)
 
         buttons = []
 
@@ -120,7 +121,7 @@ def getMyTalks(event, context):
         lookup_val = datetime.now() - timedelta(days=30)
         lookup_val = lookup_val.strftime("%Y-%m-%d")
 
-    if session_date:
+    if session_date and not session_name:
         mySession = getSession(session_date)
         logger.info(mySession)
 
