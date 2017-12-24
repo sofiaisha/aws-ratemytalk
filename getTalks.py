@@ -48,7 +48,7 @@ def delegate(session_attributes, slots):
     }
 
 def close(session_attributes, fulfillment_state, message):
-    response = {
+    return {
         'sessionAttributes': session_attributes,
         'dialogAction': {
             'type': 'Close',
