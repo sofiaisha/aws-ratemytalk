@@ -7,8 +7,107 @@ from botocore.exceptions import ClientError
 from datetime import datetime, timedelta
 import time
 
+dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
+table = dynamodb.Table('RateMyTalkSessions')
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+def elicit_slot(session_attributes, intent_name, slots, slot_to_elicit, message, response_card):
+    return {
+        'sessionAttributes': session_attributes,
+        'dialogAction': {
+            'type': 'ElicitSlot',
+            'intentName': intent_name,
+            'slots': slots,
+            'slotToElicit': slot_to_elicit,
+            'message': message,
+            'responseCard': response_card
+        }
+    }
+
+def confirm_intent(session_attributes, intent_name, slots, message, response_card):
+    return {
+        'sessionAttributes': session_attributes,
+        'dialogAction': {
+            'type': 'ConfirmIntent',
+            'intentName': intent_name,
+            'slots': slots,
+            'message': message,
+            'responseCard': response_card
+        }
+    }
+
+def delegate(session_attributes, slots):
+    return {
+        'sessionAttributes': session_attributes,
+        'dialogAction': {
+            'type': 'Delegate',
+            'slots': slots
+        }
+    }
+
+def close(session_attributes, fulfillment_state, message):
+    response = {
+        'sessionAttributes': session_attributes,
+        'dialogAction': {
+            'type': 'Close',
+            'fulfillmentState': fulfillment_state,
+            'message': message
+        }
+    }
+
+def build_response_card(title, subtitle, options):
+    """
+    Build a responseCard with a title, subtitle, and an optional set of options which should be displayed as buttons.
+    """
+    buttons = None
+    if options is not None:
+        buttons = []
+        for i in range(min(5, len(options))):
+            buttons.append(options[i])
+
+    return {
+        'contentType': 'application/vnd.amazonaws.card.generic',
+        'version': 1,
+        'genericAttachments': [{
+            'title': title,
+            'subTitle': subtitle,
+            'buttons': buttons
+        }]
+    }
+
+def build_options(sessions):
+    """
+    Build a list of potential sessions for rating, to be used in responseCard generation.
+    """
+    options = []
+
+    for i in range(min(len(sessions), 5)):
+        options.append({'text': sessions[i], 'value': sessions[i]})
+
+    return options
+
+def getSession(session_date):
+    try:
+        response = table.scan(
+            FilterExpression=Attr('session_date').gte(session_date)
+        )
+        items = response[u'Items']
+
+
+    except ClientError as e:
+        logger.error(e.response['Error']['Message'])
+        return None
+    else:
+        if items:
+            buttons = []
+
+            for item in items:
+                buttons.append(item['session_name'])
+        return buttons
+        else:
+            return None
 
 def getMyTalks(event, context):
     #return event
@@ -27,26 +126,16 @@ def getMyTalks(event, context):
         mySession = getSession(session_date)
         logger.info(mySession)
 
-        if mySession == 'null':
-            return {
-                "dialogAction": {
-                    "type": "ElicitSlot",
-                    "message": {
-                        "contentType": "PlainText",
-                        "content": "There are no sessions in this timeframe. Please specify a session date from the last month."
-                    },
-                    "intentName": "RateTalk",
-                    "slots": {
-                        "sessionName": session_name,
-                        "sessionDate": 'null',
-                        "sessionScore": session_score
-                    },
-                    "slotToElicit" : "sessionDate"
-                }
-            }
+        if mySession:
+            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionName', 
+            {'contentType': 'PlainText', 'content': 'Please select a session from the next cards.'},
+            build_response_card('Availible Sessions', 'Please select the session you would like to rate.', build_options(mySession))
+            )
 
         else:
-            return sessionCards (mySession)
+            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionDate',
+                {'contentType': 'PlainText', 'content': 'There are no sessions in this timeframe. Please specify a session date from the last month.'} )
+
 
     if session_date and session_name and session_score>0:
         if item:
@@ -59,75 +148,4 @@ def getMyTalks(event, context):
 
     else:
         logger.info('Responding with: dialogAction type Delegate')
-        return {
-            'sessionAttributes': {},
-            'dialogAction': {
-                'type': 'Delegate',
-                'slots': {
-                    'sessionName': session_name,
-                    'sessionDate': session_date,
-                    'sessionScore': session_score
-                }
-            }
-        }
-
-def getSession(session_date):
-    dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
-    table = dynamodb.Table('RateMyTalkSessions')
-
-    try:
-        response = table.scan(
-            FilterExpression=Attr('session_date').gte(session_date)
-        )
-        items = response[u'Items']
-
-
-    except ClientError as e:
-        logger.error(e.response['Error']['Message'])
-        raise SystemExit
-    else:
-        if items:
-            buttons = ''
-
-            for item in items:
-                if buttons!='':
-                    buttons += ","
-
-                session_date = item['session_date']
-                session_name = item['session_name']
-                buttons += '{"text": "%s","value": "%s"}' % (session_name, session_name)
-
-            return {
-                        "title": "Availible Sessions",
-                        "subtitle": "Please select the session you would like to rate.",
-                        "buttons": [
-                            buttons
-                        ]
-                    }
-        else:
-            return 'null'
-
-def sessionCards (mySession):
-    return {
-        "dialogAction": {
-            "type": "ElicitSlot",
-            "message": {
-                "contentType": "PlainText",
-                "content": "Please select a session from the next cards."
-            },
-            "intentName": "RateTalk",
-            "slots": {
-                "sessionName": 'null',
-                "sessionDate": 'null',
-                "sessionScore": 'null'
-            },
-            "slotToElicit" : "sessionName",
-            "responseCard": {
-                "version": 1,
-                "contentType": "application/vnd.amazonaws.card.generic",
-                "genericAttachments": [
-                    mySession
-                ]
-            }
-        }
-    }
+        return delegate(None, event['currentIntent']['slots'])
