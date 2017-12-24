@@ -136,7 +136,8 @@ def getMyTalks(event, context):
                 {'contentType': 'PlainText', 'content': 'There are no sessions in this timeframe. Please specify a session date from the last month.'}, None)
 
 
-    if session_date and session_name and session_score>0:
+    if session_date and session_name and session_score:
+        logger.info(event['currentIntent']['slots'])
         confirm_intent(None, intent, event['currentIntent']['slots'],
         {'contentType': 'PlainText', 'content': 'Are you sure with sending the score %s for the session %s on %s?' % (session_score, session_name, session_date)}, None)
 
