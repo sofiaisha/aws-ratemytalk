@@ -155,12 +155,12 @@ def save_data(session_attributes, session_score, record_id):
 
 def get_my_talks(event, context):
     logger.info('Received event: ' + json.dumps(event))
-    logger.info('Received context: ' + context)
 
     intent = event['currentIntent']['name']
     session_name = event['currentIntent']['slots']['sessionName']
     session_date = event['currentIntent']['slots']['sessionDate']
     session_score = event['currentIntent']['slots']['sessionScore']
+    record_id = context.aws_request_id
 
     if session_date and not session_name:
         mySession = get_session(session_date)
