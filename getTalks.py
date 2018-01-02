@@ -174,7 +174,7 @@ def get_my_talks(event, context):
 
         else:
             last_month = datetime.now() - timedelta(days=30)
-            last_month = lookup_val.strftime("%Y-%m-%d")
+            last_month = last_month.strftime("%Y-%m-%d")
 
             mySession = get_session(last_month)
             return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionName',
