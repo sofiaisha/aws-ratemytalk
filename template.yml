@@ -12,7 +12,7 @@ Resources:
   getMyTalks:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: getTalks.getMyTalks
+      Handler: getTalks.get_my_talks
       Runtime: python2.7
       Role:
         Fn::ImportValue:

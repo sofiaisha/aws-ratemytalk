@@ -1,14 +1,17 @@
 import boto3
 import json
 import logging
+import os
+import elasticsearch
+from requests_aws4auth import AWS4Auth
 from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
-
 from datetime import datetime, timedelta
 import time
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 table = dynamodb.Table('RateMyTalkSessions')
+es_host = 'search-myawstalks-6cipx2o3dnhiqah2as4a2drfci.us-east-1.es.amazonaws.com'
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -58,9 +61,6 @@ def close(session_attributes, fulfillment_state, message):
     }
 
 def build_response_card(title, subtitle, options):
-    """
-    Build a responseCard with a title, subtitle, and an optional set of options which should be displayed as buttons.
-    """
     buttons = None
     if options is not None:
         buttons = []
@@ -78,9 +78,6 @@ def build_response_card(title, subtitle, options):
     }
 
 def build_options(sessions):
-    """
-    Build a list of potential sessions for rating, to be used in responseCard generation.
-    """
     options = []
 
     for i in range(min(len(sessions), 5)):
@@ -88,10 +85,10 @@ def build_options(sessions):
 
     return options
 
-def getSession(session_date):
+def get_session(session_date):
     try:
         response = table.scan(
-            FilterExpression=Attr('session_date').gte(session_date)
+            FilterExpression=Attr('session_date').between(session_date, datetime.now().strftime("%Y-%m-%d"))
         )
         items = response[u'Items']
         logger.debug(items)
@@ -108,39 +105,89 @@ def getSession(session_date):
         logger.error(e.response['Error']['Message'])
         return None
 
-def getMyTalks(event, context):
-    #return event
+def get_full_session(session_name, session_date):
+    try:
+        response = table.query(
+            KeyConditionExpression=Key('session_date').eq(session_date) & Key('session_name').eq(session_name)
+        )
+        items = response[u'Items']
+        logger.debug(items)
+
+        return items
+
+    except ClientError as e:
+        logger.error(e.response['Error']['Message'])
+        return None
+
+def insert_into_es(record_id, record):
+    try:
+        cred = boto3.session.Session().get_credentials()
+        awsauth = AWS4Auth(cred.access_key,
+                           cred.secret_key,
+                           os.environ.get('AWS_DEFAULT_REGION'),
+                           'es',
+                           session_token=cred.token)
+        es = elasticsearch.Elasticsearch(
+            hosts=[es_host],
+            connection_class=elasticsearch.RequestsHttpConnection,
+            http_auth=awsauth,
+            use_ssl=True,
+            verify_certs=True,
+            port=443)
+        es.info()
+    except Exception as e:
+        print("Failed to connect to Amazon ES, because %s" % (e))
+        raise(e)
+    try:
+        myindex = datetime.datetime.now().strftime("talks-review-%Y-%m")
+        es.index(index=myindex, doc_type='record', id=record_id, body=record)
+    except Exception as e:
+        print("Failed to insert record to Amazon ES, because %s" % (e))
+        raise(e)
+
+def save_data(session_attributes, session_score, record_id):
+    for record in session_attributes:
+        try:
+            insert_into_es(record_id, record)
+        except Exception as e:
+            print("Failed to insert into ES. %s" % (e))
+            print(json.dumps(record))
+
+def get_my_talks(event, context):
     logger.info('Received event: ' + json.dumps(event))
+    logger.info('Received context: ' + json.dumps(context))
 
     intent = event['currentIntent']['name']
     session_name = event['currentIntent']['slots']['sessionName']
     session_date = event['currentIntent']['slots']['sessionDate']
     session_score = event['currentIntent']['slots']['sessionScore']
 
-    if intent == 'RateTalk':
-        lookup_val = datetime.now() - timedelta(days=30)
-        lookup_val = lookup_val.strftime("%Y-%m-%d")
-
     if session_date and not session_name:
-        mySession = getSession(session_date)
+        mySession = get_session(session_date)
         logger.info(mySession)
 
         if mySession:
             return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionName',
             {'contentType': 'PlainText', 'content': 'Please select a session from the next cards.'},
-            build_response_card('Availible Sessions', 'Please select the session you would like to rate.', build_options(mySession))
+            build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(mySession))
             )
 
         else:
-            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionDate',
-                {'contentType': 'PlainText', 'content': 'There are no sessions in this timeframe. Please specify a session date from the last month.'}, None)
+            last_month = datetime.now() - timedelta(days=30)
+            last_month = lookup_val.strftime("%Y-%m-%d")
 
+            mySession = get_session(last_month)
+            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionName',
+            {'contentType': 'PlainText', 'content': 'There are no sesions in this timeframe. Here are all the sessions from the last month'},
+            build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(mySession))
+            )
 
     if session_date and session_name and session_score:
         if event['currentIntent']['confirmationStatus']=='None':
             return confirm_intent(None, intent, event['currentIntent']['slots'],
             {'contentType': 'PlainText', 'content': 'Are you OK with sending the score %s for the session %s on %s?' % (session_score, session_name, session_date)}, None)
         else:
+            save_data (get_full_session(session_name, session_date), session_score, record_id)
             return close(None, 'Fulfilled',
             {'contentType': 'PlainText', 'content': 'Thank you for rating the session!'})
     else:
