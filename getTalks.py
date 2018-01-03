@@ -113,7 +113,11 @@ def get_full_session(session_name, session_date):
         items = response[u'Items']
         logger.debug(items)
 
-        return items
+        if items:
+            return items
+        else:
+            logger.info('No session details found for ES submission)
+            return None
 
     except ClientError as e:
         logger.error(e.response['Error']['Message'])
@@ -188,7 +192,7 @@ def get_my_talks(event, context):
             return confirm_intent(None, intent, event['currentIntent']['slots'],
             {'contentType': 'PlainText', 'content': 'Are you OK with sending the score %s for the session %s on %s?' % (session_score, session_name, session_date)}, None)
         else:
-            save_data (get_full_session(session_name, session_date), session_score, record_id)
+            save_data(get_full_session(session_name, session_date), session_score, record_id)
             return close(None, 'Fulfilled',
             {'contentType': 'PlainText', 'content': 'Thank you for rating the session!'})
     else:
