@@ -142,7 +142,7 @@ def insert_into_es(record_id, record):
         print("Failed to connect to Amazon ES, because %s" % (e))
         raise(e)
     try:
-        myindex = datetime.datetime.now().strftime("talks-review-%Y-%m")
+        myindex = datetime.now().strftime("talks-review-%Y-%m")
         es.index(index=myindex, doc_type='record', id=record_id, body=record)
         logger.info('Wrote record: ' + record)
     except Exception as e:
@@ -157,6 +157,7 @@ def save_data(session_attributes, session_score, record_id):
 
     for record in session_attributes:
         try:
+            print ("Attempt to write %s" % record)
             insert_into_es(record_id, record)
         except Exception as e:
             print("Failed to insert into ES. %s" % (e))
