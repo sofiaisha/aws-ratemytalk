@@ -151,10 +151,10 @@ def insert_into_es(record_id, record):
 
 def save_data(session_attributes, session_score, record_id):
     print('Saving Data')
-    print ('Session Data: ' + session_attributes)
+    print (session_attributes)
     print ('Session Score: ' + session_score)
     print ('Record ID: ' + record_id)
-    
+
     for record in session_attributes:
         try:
             insert_into_es(record_id, record)
