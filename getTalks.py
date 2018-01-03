@@ -119,10 +119,14 @@ def get_full_session(session_name, session_date):
         response = table.query(
             KeyConditionExpression=Key('session_date').eq(session_date) & Key('session_name').eq(session_name)
         )
+        print '***'
+        print response
         items = response['Items']
         logger.debug(items)
 
         if items:
+            for item in items:
+                buttons.append(item['session_name'])
             return items
         else:
             logger.info('No session details found for ES submission')
