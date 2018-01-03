@@ -141,7 +141,7 @@ def insert_into_es(record_id, record):
     try:
         myindex = datetime.datetime.now().strftime("talks-review-%Y-%m")
         es.index(index=myindex, doc_type='record', id=record_id, body=record)
-        logger.info('Wrote record: ' + record))
+        logger.info('Wrote record: ' + record)
     except Exception as e:
         print("Failed to insert record to Amazon ES, because %s" % (e))
         raise(e)
