@@ -16,6 +16,16 @@ es_host = 'search-myawstalks-6cipx2o3dnhiqah2as4a2drfci.us-east-1.es.amazonaws.c
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+# Helper class to convert a DynamoDB item to JSON.
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            if o % 1 > 0:
+                return float(o)
+            else:
+                return int(o)
+        return super(DecimalEncoder, self).default(o)
+
 def elicit_slot(session_attributes, intent_name, slots, slot_to_elicit, message, response_card):
     return {
         'sessionAttributes': session_attributes,
@@ -109,7 +119,7 @@ def get_full_session(session_name, session_date):
         response = table.query(
             KeyConditionExpression=Key('session_date').eq(session_date) & Key('session_name').eq(session_name)
         )
-        items = response[u'Items']
+        items = response['Items']
         logger.debug(items)
 
         if items:
@@ -157,6 +167,8 @@ def save_data(session_attributes, session_score, record_id):
 
     for record in session_attributes:
         try:
+            record = response[u'record']
+            record = json.dumps(record[0], cls=DecimalEncoder)
             print ("Attempt to write %s" % record)
             insert_into_es(record_id, record)
         except Exception as e:
