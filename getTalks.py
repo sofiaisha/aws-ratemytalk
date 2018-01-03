@@ -116,7 +116,7 @@ def get_full_session(session_name, session_date):
         if items:
             return items
         else:
-            logger.info('No session details found for ES submission)
+            logger.info('No session details found for ES submission')
             return None
 
     except ClientError as e:
