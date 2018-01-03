@@ -91,7 +91,6 @@ def get_session(session_date):
             FilterExpression=Attr('session_date').between(session_date, datetime.now().strftime("%Y-%m-%d"))
         )
         items = response[u'Items']
-        logger.debug(items)
 
         buttons = []
 
@@ -117,7 +116,7 @@ def get_full_session(session_name, session_date):
             return items
         else:
             logger.info('No session details found for ES submission')
-            return None
+            return items
 
     except ClientError as e:
         logger.error(e.response['Error']['Message'])
@@ -151,6 +150,11 @@ def insert_into_es(record_id, record):
         raise(e)
 
 def save_data(session_attributes, session_score, record_id):
+    print('Saving Data')
+    print ('Session Data: ' + session_attributes)
+    print ('Session Score: ' + session_score)
+    print ('Record ID: ' + record_id)
+    
     for record in session_attributes:
         try:
             insert_into_es(record_id, record)
