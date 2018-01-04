@@ -132,7 +132,7 @@ def get_full_session(session_name, session_date, session_score, event):
             additional_data = {"session_score":int(session_score),
             "user_id": user_id,
             "channel": channel,
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")}
+            "timestamp": datetime.now().strftime("%Y-%m-%dT%H:%M:%S%z")}
             items.update(additional_data)
 
             items = json.dumps(items, cls=DecimalEncoder)
