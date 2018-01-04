@@ -167,7 +167,7 @@ def save_data(session_attributes, session_score, record_id):
 
     for record in session_attributes:
         try:
-            record = response[u'record']
+            #record = response[u'record']
             record = json.dumps(record[0], cls=DecimalEncoder)
             print ("Attempt to write %s" % record)
             insert_into_es(record_id, record)
