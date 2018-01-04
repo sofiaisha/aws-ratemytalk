@@ -8,6 +8,7 @@ from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
 from datetime import datetime, timedelta
 import time
+import decimal
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 table = dynamodb.Table('RateMyTalkSessions')
@@ -114,7 +115,9 @@ def get_session(session_date):
         logger.error(e.response['Error']['Message'])
         return None
 
-def get_full_session(session_name, session_date):
+def get_full_session(session_name, session_date, session_score, event):
+    user_id = event['userId']
+    channel = event['requestAttributes']['x-amz-lex:channel-name']
     try:
         response = table.query(
             KeyConditionExpression=Key('session_date').eq(session_date) & Key('session_name').eq(session_name)
@@ -123,6 +126,17 @@ def get_full_session(session_name, session_date):
         logger.debug(items)
 
         if items:
+            session_score = {"session_score":int(session_score)}
+            items[0].update(session_score)
+            user_id = {"_id": user_id}
+            items[0].update(user_id)
+            channel = {"_source": channel}
+            items[0].update(channel)
+            timestamp = {"timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")}
+            items[0].update(timestamp)
+
+            #record = json.dumps(items, cls=DecimalEncoder)
+            print ("Attempt to write %s" % record)
             return items
         else:
             logger.info('No session details found for ES submission')
@@ -159,21 +173,17 @@ def insert_into_es(record_id, record):
         print("Failed to insert record to Amazon ES, because %s" % (e))
         raise(e)
 
-def save_data(session_attributes, session_score, record_id):
+def save_data(record, record_id):
     print('Saving Data')
-    print (session_attributes)
-    print ('Session Score: ' + session_score)
+    print (record)
     print ('Record ID: ' + record_id)
 
-    for record in session_attributes:
-        try:
-            #record = response[u'record']
-            record = json.dumps(record[0], cls=DecimalEncoder)
-            print ("Attempt to write %s" % record)
-            insert_into_es(record_id, record)
-        except Exception as e:
-            print("Failed to insert into ES. %s" % (e))
-            print(json.dumps(record))
+    try:
+        insert_into_es(record_id, record)
+
+    except Exception as e:
+        print("Failed to insert into ES. %s" % (e))
+        print(json.dumps(record))
 
 def get_my_talks(event, context):
     logger.info('Received event: ' + json.dumps(event))
@@ -209,7 +219,7 @@ def get_my_talks(event, context):
             return confirm_intent(None, intent, event['currentIntent']['slots'],
             {'contentType': 'PlainText', 'content': 'Are you OK with sending the score %s for the session %s on %s?' % (session_score, session_name, session_date)}, None)
         else:
-            save_data(get_full_session(session_name, session_date), session_score, record_id)
+            save_data(get_full_session(session_name, session_date, session_score, event), record_id)
             return close(None, 'Fulfilled',
             {'contentType': 'PlainText', 'content': 'Thank you for rating the session!'})
     else:
