@@ -119,24 +119,23 @@ def get_full_session(session_name, session_date, session_score, event):
     user_id = event['userId']
     channel = event['requestAttributes']['x-amz-lex:channel-name']
     try:
-        response = table.query(
-            KeyConditionExpression=Key('session_date').eq(session_date) & Key('session_name').eq(session_name)
+        response = table.get_item(
+            Key={
+                'session_date': session_date,
+                'session_name': session_name
+            }
         )
-        items = response[u'Items']
-        logger.debug(items)
+
+        items = response['Item']
 
         if items:
-            session_score = {"session_score":int(session_score)}
-            items[0].update(session_score)
-            user_id = {"_id": user_id}
-            items[0].update(user_id)
-            channel = {"_source": channel}
-            items[0].update(channel)
-            timestamp = {"timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")}
-            items[0].update(timestamp)
+            additional_data = {"session_score":int(session_score),
+            "user_id": user_id,
+            "channel": channel,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")}
+            items.update(additional_data)
 
-            #record = json.dumps(items, cls=DecimalEncoder)
-            print ("Attempt to write %s" % record)
+            items = json.dumps(items, cls=DecimalEncoder)
             return items
         else:
             logger.info('No session details found for ES submission')
@@ -165,19 +164,16 @@ def insert_into_es(record_id, record):
     except Exception as e:
         print("Failed to connect to Amazon ES, because %s" % (e))
         raise(e)
+    print type(record_id)
     try:
         myindex = datetime.now().strftime("talks-review-%Y-%m")
-        es.index(index=myindex, doc_type='record', id=record_id, body=record)
+        es.index(index=myindex, doc_type='documents', id=record_id, body=record)
         logger.info('Wrote record: ' + record)
     except Exception as e:
         print("Failed to insert record to Amazon ES, because %s" % (e))
         raise(e)
 
 def save_data(record, record_id):
-    print('Saving Data')
-    print (record)
-    print ('Record ID: ' + record_id)
-
     try:
         insert_into_es(record_id, record)
 
