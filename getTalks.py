@@ -90,16 +90,15 @@ def build_response_card(title, subtitle, options):
 
 def build_options(sessions):
     options = []
-
     for i in range(min(len(sessions), 5)):
-        options.append({'text': sessions[i], 'value': sessions[i]})
+        options.append({'text': sessions[i]['topic'], 'value': sessions[i]['session_id']})
 
     return options
 
 def get_session(session_date):
     try:
         response = table.scan(
-            FilterExpression=Attr('session_date').between(session_date, datetime.now().strftime("%Y-%m-%d"))
+            FilterExpression=Attr('date').between(session_date, datetime.now().strftime("%Y-%m-%d"))
         )
         items = response[u'Items']
 
@@ -107,7 +106,7 @@ def get_session(session_date):
 
         if items:
             for item in items:
-                buttons.append(item['session_name'])
+                buttons.append(item)
 
         return buttons
 
@@ -115,14 +114,13 @@ def get_session(session_date):
         logger.error(e.response['Error']['Message'])
         return None
 
-def get_full_session(session_name, session_date, session_score, event):
+def get_full_session(session_id, session_score, event):
     user_id = event['userId']
     channel = event['requestAttributes']['x-amz-lex:channel-name']
     try:
         response = table.get_item(
             Key={
-                'session_date': session_date,
-                'session_name': session_name
+                'session_id': session_date
             }
         )
 
@@ -188,7 +186,29 @@ def get_my_talks(event, context):
     session_name = event['currentIntent']['slots']['sessionName']
     session_date = event['currentIntent']['slots']['sessionDate']
     session_score = event['currentIntent']['slots']['sessionScore']
+    session_id = event['currentIntent']['slots']['sessionID']
     record_id = context.aws_request_id
+
+    #start with if not session_id
+    if not session_id:
+        mySession = get_session(session_date)
+        logger.info(mySession)
+
+        if mySession:
+            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionName',
+            {'contentType': 'PlainText', 'content': 'Please select a session from the next cards.'},
+            build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(mySession))
+            )
+
+        else:
+            last_month = datetime.now() - timedelta(days=30)
+            last_month = last_month.strftime("%Y-%m-%d")
+
+            mySession = get_session(last_month)
+            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionName',
+            {'contentType': 'PlainText', 'content': 'There are no sesions in this timeframe. Here are all the sessions from the last month'},
+            build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(mySession))
+            )
 
     if session_date and not session_name:
         mySession = get_session(session_date)
@@ -213,7 +233,7 @@ def get_my_talks(event, context):
     if session_date and session_name and session_score:
         if event['currentIntent']['confirmationStatus']=='None':
             return confirm_intent(None, intent, event['currentIntent']['slots'],
-            {'contentType': 'PlainText', 'content': 'Are you OK with sending the score %s for the session %s on %s?' % (session_score, session_name, session_date)}, None)
+            {'contentType': 'PlainText', 'content': 'Are you OK with sending the score %s for the session %s on %s?' % (session_score, session_name, session_date.strftime("%M %d, %Y"))}, None)
         else:
             save_data(get_full_session(session_name, session_date, session_score, event), record_id)
             return close(None, 'Fulfilled',
