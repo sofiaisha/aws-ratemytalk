@@ -191,7 +191,9 @@ def get_my_talks(event, context):
 
     #start with if not session_id
     if not session_id:
-        mySession = get_session(session_date)
+        last_month = datetime.now() - timedelta(days=30)
+        last_month = last_month.strftime("%Y-%m-%d")
+        mySession = get_session(last_month)
         logger.info(mySession)
 
         if mySession:
@@ -201,9 +203,6 @@ def get_my_talks(event, context):
             )
 
         else:
-            last_month = datetime.now() - timedelta(days=30)
-            last_month = last_month.strftime("%Y-%m-%d")
-
             mySession = get_session(last_month)
             return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionName',
             {'contentType': 'PlainText', 'content': 'There are no sesions in this timeframe. Here are all the sessions from the last month'},
