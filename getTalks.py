@@ -217,6 +217,6 @@ def get_my_talks(event, context):
                 save_data(get_full_session(session_name, session_date, session_score, event), record_id)
                 return close(None, 'Fulfilled',
                 {'contentType': 'PlainText', 'content': 'Thank you for rating the session!'})
-            else:
-                logger.info('Responding with: dialogAction type Delegate')
-                return delegate(None, event['currentIntent']['slots'])
+        else:
+            logger.info('Responding with: dialogAction type Delegate')
+            return delegate(None, event['currentIntent']['slots'])
