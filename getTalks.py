@@ -124,7 +124,6 @@ def get_session_details(session_id):
         items = response['Item']
 
         if items:
-            items = json.dumps(items, cls=DecimalEncoder)
             return items
         else:
             logger.info('No session details found for id %s' % session_id)
