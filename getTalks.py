@@ -114,6 +114,26 @@ def get_session(session_date):
         logger.error(e.response['Error']['Message'])
         return None
 
+def get_session_details(session_id):
+    try:
+        response = table.get_item(
+            Key={
+                'session_id': session_id
+            }
+        )
+        items = response['Item']
+
+        if items:
+            items = json.dumps(items, cls=DecimalEncoder)
+            return items
+        else:
+            logger.info('No session details found for id %s' % session_id)
+            return items
+
+    except ClientError as e:
+        logger.error(e.response['Error']['Message'])
+        return None
+
 def get_full_session(session_id, session_score, event):
     user_id = event['userId']
     channel = event['requestAttributes']['x-amz-lex:channel-name']
@@ -218,5 +238,8 @@ def get_my_talks(event, context):
                 return close(None, 'Fulfilled',
                 {'contentType': 'PlainText', 'content': 'Thank you for rating the session!'})
         else:
+            slots = get_session_details(session_id)
+            event['currentIntent']['slots']['sessionName'] = slots['topic']
+            event['currentIntent']['slots']['sessionDate'] = slots['date']
             logger.info('Responding with: dialogAction type Delegate')
             return delegate(None, event['currentIntent']['slots'])
