@@ -205,17 +205,18 @@ def get_my_talks(event, context):
         else:
             mySession = get_session(last_month)
             return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionID',
-            {'contentType': 'PlainText', 'content': 'There are no public sesions from the last month. If you have a specific session ID, please provide it now'}, None)
-            )
+            {'contentType': 'PlainText', 'content': 'There are no public sesions from the last month. If you have a specific session ID, please provide it now'},
+            None)
 
-    if session_date and session_name and session_score:
-        if event['currentIntent']['confirmationStatus']=='None':
-            return confirm_intent(None, intent, event['currentIntent']['slots'],
-            {'contentType': 'PlainText', 'content': 'Are you OK with sending the score %s for the session %s on %s?' % (session_score, session_name, session_date.strftime("%M %d, %Y"))}, None)
-        else:
-            save_data(get_full_session(session_name, session_date, session_score, event), record_id)
-            return close(None, 'Fulfilled',
-            {'contentType': 'PlainText', 'content': 'Thank you for rating the session!'})
     else:
-        logger.info('Responding with: dialogAction type Delegate')
-        return delegate(None, event['currentIntent']['slots'])
+        if session_score:
+            if event['currentIntent']['confirmationStatus']=='None':
+                return confirm_intent(None, intent, event['currentIntent']['slots'],
+                {'contentType': 'PlainText', 'content': 'Are you OK with sending the score %s for the session %s on %s?' % (session_score, session_name, session_date.strftime("%M %d, %Y"))}, None)
+            else:
+                save_data(get_full_session(session_name, session_date, session_score, event), record_id)
+                return close(None, 'Fulfilled',
+                {'contentType': 'PlainText', 'content': 'Thank you for rating the session!'})
+            else:
+                logger.info('Responding with: dialogAction type Delegate')
+                return delegate(None, event['currentIntent']['slots'])
