@@ -197,36 +197,15 @@ def get_my_talks(event, context):
         logger.info(mySession)
 
         if mySession:
-            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionName',
+            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionID',
             {'contentType': 'PlainText', 'content': 'Please select a session from the next cards.'},
             build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(mySession))
             )
 
         else:
             mySession = get_session(last_month)
-            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionName',
-            {'contentType': 'PlainText', 'content': 'There are no sesions in this timeframe. Here are all the sessions from the last month'},
-            build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(mySession))
-            )
-
-    if session_date and not session_name:
-        mySession = get_session(session_date)
-        logger.info(mySession)
-
-        if mySession:
-            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionName',
-            {'contentType': 'PlainText', 'content': 'Please select a session from the next cards.'},
-            build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(mySession))
-            )
-
-        else:
-            last_month = datetime.now() - timedelta(days=30)
-            last_month = last_month.strftime("%Y-%m-%d")
-
-            mySession = get_session(last_month)
-            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionName',
-            {'contentType': 'PlainText', 'content': 'There are no sesions in this timeframe. Here are all the sessions from the last month'},
-            build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(mySession))
+            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionID',
+            {'contentType': 'PlainText', 'content': 'There are no public sesions from the last month. If you have a specific session ID, please provide it now'}, None)
             )
 
     if session_date and session_name and session_score:
