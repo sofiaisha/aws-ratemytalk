@@ -231,7 +231,8 @@ def get_my_talks(event, context):
         if session_score:
             if event['currentIntent']['confirmationStatus']=='None':
                 return confirm_intent(None, intent, event['currentIntent']['slots'],
-                {'contentType': 'PlainText', 'content': 'Are you OK with sending the score %s for the session %s on %s?' % (session_score, session_name, session_date.strftime("%M %d, %Y"))}, None)
+                {'contentType': 'PlainText', 'content': 'Are you OK with sending the score %s for the session %s on %s?' %
+                (session_score, session_name, datetime.strptime(session_date,'%Y-%m-%d').strftime("%B %d, %Y"))}, None)
             else:
                 save_data(get_full_session(session_name, session_date, session_score, event), record_id)
                 return close(None, 'Fulfilled',
