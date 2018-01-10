@@ -139,7 +139,7 @@ def get_full_session(session_id, session_score, event):
     try:
         response = table.get_item(
             Key={
-                'session_id': session_date
+                'session_id': session_id
             }
         )
 
@@ -234,7 +234,7 @@ def get_my_talks(event, context):
                 {'contentType': 'PlainText', 'content': 'Are you OK with sending the score %s for the session %s on %s?' %
                 (session_score, session_name, datetime.strptime(session_date,'%Y-%m-%d').strftime("%B %d, %Y"))}, None)
             else:
-                save_data(get_full_session(session_name, session_date, session_score, event), record_id)
+                save_data(get_full_session(session_id, session_score, event), record_id)
                 return close(None, 'Fulfilled',
                 {'contentType': 'PlainText', 'content': 'Thank you for rating the session!'})
         else:
