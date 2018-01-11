@@ -98,7 +98,7 @@ def build_options(sessions):
 def get_session(session_date):
     try:
         response = table.scan(
-            FilterExpression=Attr('date').between(session_date, datetime.now().strftime("%Y-%m-%d"))
+            FilterExpression=Attr('date').between(session_date, datetime.now().strftime("%Y-%m-%d")) & Attr('public').eq(1)
         )
         items = response[u'Items']
 
