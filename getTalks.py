@@ -181,7 +181,6 @@ def insert_into_es(record_id, record):
     except Exception as e:
         print("Failed to connect to Amazon ES, because %s" % (e))
         raise(e)
-    print type(record_id)
     try:
         myindex = datetime.now().strftime("talks-review-%Y-%m")
         es.index(index=myindex, doc_type='documents', id=record_id, body=record)
