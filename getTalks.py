@@ -3,12 +3,11 @@ import json
 import logging
 import os
 import elasticsearch
+import decimal
 from requests_aws4auth import AWS4Auth
 from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
-from datetime import datetime, timedelta
-import time
-import decimal
+from datetime import datetime, timedelta, time
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 table = dynamodb.Table('RateMyTalkSessions')
