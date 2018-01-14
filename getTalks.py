@@ -210,7 +210,8 @@ def get_my_talks(event, context):
     logger.info('Received event: ' + json.dumps(event))
 
     intent = event['currentIntent']['name']
-    start_from = int(event['sessionAttributes']['start_from'])
+    if event['sessionAttributes']:
+        start_from = int(event['sessionAttributes']['start_from'])
     session_name = event['currentIntent']['slots']['sessionName']
     session_date = event['currentIntent']['slots']['sessionDate']
     session_score = event['currentIntent']['slots']['sessionScore']
