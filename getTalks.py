@@ -90,17 +90,23 @@ def build_response_card(title, subtitle, options):
 
 def build_options(sessions):
     options = []
-    for i in range(min(len(sessions), 5)):
+    for i in range(min(len(sessions), 3)):
         options.append({'text': sessions[i]['topic'], 'value': sessions[i]['session_id']})
 
     return options
 
-def get_session(session_date):
+def get_session(session_date, start_from = None):
+    items = []
+    last_key = ''
     try:
-        response = table.scan(
-            FilterExpression=Attr('date').between(session_date, datetime.now().strftime("%Y-%m-%d")) & Attr('public').eq(1)
+        response = table.query(
+            IndexName='public-date-index',
+            KeyConditionExpression=Key('public').eq(1),
+            Limit=3,
+            ScanIndexForward=False
         )
         items = response[u'Items']
+        last_key = response['LastEvaluatedKey']
 
         buttons = []
 
@@ -181,6 +187,7 @@ def insert_into_es(record_id, record):
     except Exception as e:
         print("Failed to connect to Amazon ES, because %s" % (e))
         raise(e)
+    print type(record_id)
     try:
         myindex = datetime.now().strftime("talks-review-%Y-%m")
         es.index(index=myindex, doc_type='documents', id=record_id, body=record)
