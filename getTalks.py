@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, time
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 table = dynamodb.Table('RateMyTalkSessions')
 es_host = 'search-myawstalks-6cipx2o3dnhiqah2as4a2drfci.us-east-1.es.amazonaws.com'
+start_from = 0
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -87,28 +88,28 @@ def build_response_card(title, subtitle, options):
         }]
     }
 
-def build_options(sessions):
+def build_options(sessions, start_from = 0):
     options = []
-    for i in range(min(len(sessions), 3)):
+    for i in range(start_from, (min(len(sessions), 2) + start_from)):
         options.append({'text': sessions[i]['topic'], 'value': sessions[i]['session_id']})
+    if len(options)>1:
+        options.append({'text': 'More Sessions', 'value': 'more'})
 
     return options
 
-def get_session(session_date, start_from = None):
+def get_session(session_date):
     try:
         response = table.query(
             IndexName='public-date-index',
             KeyConditionExpression=Key('public').eq(1),
-            Limit=2,
             ScanIndexForward=False
         )
         items = response[u'Items']
-        last_key = response['LastEvaluatedKey']
 
-        if last_key:
-            additional_data = {"topic": "More Sessions",
-            "session_id": "more"}
-            items.append(additional_data)
+        #if last_key:
+            #additional_data = {"topic": "More Sessions",
+            #"session_id": "more"}
+            #items.append(additional_data)
 
         buttons = []
 
@@ -223,7 +224,7 @@ def get_my_talks(event, context):
         logger.info(mySession)
 
         if mySession:
-            return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionID',
+            return elicit_slot({'start_from': start_from + 2}, intent, event['currentIntent']['slots'], 'sessionID',
             {'contentType': 'PlainText', 'content': 'Please select a session from the next cards.'},
             build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(mySession))
             )
