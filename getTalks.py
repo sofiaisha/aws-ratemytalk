@@ -210,6 +210,7 @@ def get_my_talks(event, context):
     logger.info('Received event: ' + json.dumps(event))
 
     intent = event['currentIntent']['name']
+    start_from = int(event['sessionAttributes']['start_from'])
     session_name = event['currentIntent']['slots']['sessionName']
     session_date = event['currentIntent']['slots']['sessionDate']
     session_score = event['currentIntent']['slots']['sessionScore']
@@ -226,7 +227,7 @@ def get_my_talks(event, context):
         if mySession:
             return elicit_slot({'start_from': start_from + 2}, intent, event['currentIntent']['slots'], 'sessionID',
             {'contentType': 'PlainText', 'content': 'Please select a session from the next cards.'},
-            build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(mySession))
+            build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(mySession, start_from))
             )
 
         else:
