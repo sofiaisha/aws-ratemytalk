@@ -12,7 +12,6 @@ from datetime import datetime, timedelta, time
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
 table = dynamodb.Table('RateMyTalkSessions')
 es_host = 'search-myawstalks-6cipx2o3dnhiqah2as4a2drfci.us-east-1.es.amazonaws.com'
-start_from = 0
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -212,6 +211,8 @@ def get_my_talks(event, context):
     intent = event['currentIntent']['name']
     if event['sessionAttributes']:
         start_from = int(event['sessionAttributes']['start_from'])
+    else:
+        start_from = 0
     session_name = event['currentIntent']['slots']['sessionName']
     session_date = event['currentIntent']['slots']['sessionDate']
     session_score = event['currentIntent']['slots']['sessionScore']
