@@ -74,7 +74,7 @@ def build_response_card(title, subtitle, options):
     buttons = None
     if options is not None:
         buttons = []
-        for i in range(min(5, len(options))):
+        for i in range(min(3, len(options))):
             buttons.append(options[i])
 
     return {
@@ -95,17 +95,20 @@ def build_options(sessions):
     return options
 
 def get_session(session_date, start_from = None):
-    items = []
-    last_key = ''
     try:
         response = table.query(
             IndexName='public-date-index',
             KeyConditionExpression=Key('public').eq(1),
-            Limit=3,
+            Limit=2,
             ScanIndexForward=False
         )
         items = response[u'Items']
         last_key = response['LastEvaluatedKey']
+
+        if last_key:
+            additional_data = {"topic": "More Sessions",
+            "session_id": "more"}
+            items.append(additional_data)
 
         buttons = []
 
@@ -127,7 +130,6 @@ def get_session_details(session_id):
             }
         )
         items = response['Item']
-
         if items:
             return items
         else:
@@ -244,6 +246,7 @@ def get_my_talks(event, context):
                 {'contentType': 'PlainText', 'content': 'Thank you for rating the session!'})
         else:
             slots = get_session_details(session_id)
+            print slots
             event['currentIntent']['slots']['sessionName'] = slots['topic']
             event['currentIntent']['slots']['sessionDate'] = slots['date']
             logger.info('Responding with: dialogAction type Delegate')
