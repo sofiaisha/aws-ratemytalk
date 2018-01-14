@@ -90,7 +90,7 @@ def build_response_card(title, subtitle, options):
 
 def build_options(sessions, start_from = 0):
     options = []
-    for i in range(start_from, (min(len(sessions), 2) + start_from)):
+    for i in range(start_from, (min(len(sessions) - 1, 2 + start_from))):
         options.append({'text': sessions[i]['topic'], 'value': sessions[i]['session_id']})
     if len(options)>1:
         options.append({'text': 'More Sessions', 'value': 'more'})
