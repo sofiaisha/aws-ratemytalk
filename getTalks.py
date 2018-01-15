@@ -239,7 +239,6 @@ def get_my_talks(event, context):
             None,
             build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(my_session, start_from))
             )
-
         else:
             my_session = get_session(last_month)
             return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionID',
@@ -248,17 +247,23 @@ def get_my_talks(event, context):
 
     else:
         if session_score:
-            if event['currentIntent']['confirmationStatus']=='None':
+            if session_score>5 or session_score<1:
+                return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionScore',
+                {'contentType': 'PlainText', 'content': 'Your score must be between 1 and 5'},
+                None)
+            if event['currentIntent']['confirmationStatus']!='None':
                 return confirm_intent(None, intent, event['currentIntent']['slots'],
                 {'contentType': 'PlainText', 'content': 'Are you OK with sending the score %s for the session %s on %s?' %
                 (session_score, session_name, datetime.strptime(session_date,'%Y-%m-%d').strftime("%B %d, %Y"))}, None)
+            elif event['currentIntent']['confirmationStatus']!='Denied':
+                return close(None, 'Failed',
+                {'contentType': 'PlainText', 'content': 'Thanks. You can start over by typing *Rate a talk*'}):
             else:
                 save_data(get_full_session(session_id, session_score, event), record_id)
                 return close(None, 'Fulfilled',
                 {'contentType': 'PlainText', 'content': 'Thank you for rating the session!'})
         else:
             slots = get_session_details(session_id)
-            print slots
             event['currentIntent']['slots']['sessionName'] = slots['topic']
             event['currentIntent']['slots']['sessionDate'] = slots['date']
             logger.info('Responding with: dialogAction type Delegate')
