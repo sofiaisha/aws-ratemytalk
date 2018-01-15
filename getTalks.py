@@ -218,7 +218,7 @@ def get_my_talks(event, context):
 
     session_name = event['currentIntent']['slots']['sessionName']
     session_date = event['currentIntent']['slots']['sessionDate']
-    session_score = int(event['currentIntent']['slots']['sessionScore'])
+    session_score = event['currentIntent']['slots']['sessionScore']
     session_id = event['currentIntent']['slots']['sessionID']
     if session_id == 'start_over':
         start_from = 0
@@ -247,7 +247,7 @@ def get_my_talks(event, context):
 
     else:
         if session_score:
-            if session_score>5 or session_score<1:
+            if int(session_score)>5 or int(session_score)<1:
                 return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionScore',
                 {'contentType': 'PlainText', 'content': 'Your score must be between 1 and 5'},
                 None)
