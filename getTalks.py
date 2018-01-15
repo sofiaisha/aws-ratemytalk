@@ -236,7 +236,7 @@ def get_my_talks(event, context):
             if len (my_session) < next_start:
                 next_start = 0
             return elicit_slot({'start_from': next_start}, intent, event['currentIntent']['slots'], 'sessionID',
-            {'contentType': 'PlainText', 'content': ''},
+            None,
             build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(my_session, start_from))
             )
 
