@@ -251,11 +251,11 @@ def get_my_talks(event, context):
                 return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionScore',
                 {'contentType': 'PlainText', 'content': 'Your score must be between 1 and 5'},
                 None)
-            if event['currentIntent']['confirmationStatus']!='None':
+            if event['currentIntent']['confirmationStatus']=='None':
                 return confirm_intent(None, intent, event['currentIntent']['slots'],
                 {'contentType': 'PlainText', 'content': 'Are you OK with sending the score %s for the session %s on %s?' %
                 (session_score, session_name, datetime.strptime(session_date,'%Y-%m-%d').strftime("%B %d, %Y"))}, None)
-            elif event['currentIntent']['confirmationStatus']!='Denied':
+            elif event['currentIntent']['confirmationStatus']=='Denied':
                 return close(None, 'Failed',
                 {'contentType': 'PlainText', 'content': 'Thanks. You can start over by typing *Rate a talk*'})
             else:
