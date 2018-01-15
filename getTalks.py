@@ -220,7 +220,7 @@ def get_my_talks(event, context):
     session_date = event['currentIntent']['slots']['sessionDate']
     session_score = event['currentIntent']['slots']['sessionScore']
     session_id = event['currentIntent']['slots']['sessionID']
-    if session_id = 'start_over':
+    if session_id == 'start_over':
         start_from = 0
     record_id = context.aws_request_id
 
