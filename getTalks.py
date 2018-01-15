@@ -257,7 +257,7 @@ def get_my_talks(event, context):
                 (session_score, session_name, datetime.strptime(session_date,'%Y-%m-%d').strftime("%B %d, %Y"))}, None)
             elif event['currentIntent']['confirmationStatus']!='Denied':
                 return close(None, 'Failed',
-                {'contentType': 'PlainText', 'content': 'Thanks. You can start over by typing *Rate a talk*'}):
+                {'contentType': 'PlainText', 'content': 'Thanks. You can start over by typing *Rate a talk*'})
             else:
                 save_data(get_full_session(session_id, session_score, event), record_id)
                 return close(None, 'Fulfilled',
