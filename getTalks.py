@@ -218,7 +218,7 @@ def get_my_talks(event, context):
 
     session_name = event['currentIntent']['slots']['sessionName']
     session_date = event['currentIntent']['slots']['sessionDate']
-    session_score = event['currentIntent']['slots']['sessionScore']
+    session_score = int(event['currentIntent']['slots']['sessionScore'])
     session_id = event['currentIntent']['slots']['sessionID']
     if session_id == 'start_over':
         start_from = 0
