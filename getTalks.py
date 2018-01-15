@@ -89,10 +89,12 @@ def build_response_card(title, subtitle, options):
 
 def build_options(sessions, start_from = 0):
     options = []
-    for i in range(start_from, (min(len(sessions) - 1, 2 + start_from))):
+    for i in range(start_from, (min(len(sessions), start_from + 2))):
         options.append({'text': sessions[i]['topic'], 'value': sessions[i]['session_id']})
-    if len(options)>1:
+    if len(options)>1 and i+1 < len(sessions):
         options.append({'text': 'More Sessions', 'value': 'more'})
+    else:
+        options.append({'text': '*Start Over*', 'value': 'start_over'})
 
     return options
 
@@ -213,27 +215,33 @@ def get_my_talks(event, context):
         start_from = int(event['sessionAttributes']['start_from'])
     else:
         start_from = 0
+
     session_name = event['currentIntent']['slots']['sessionName']
     session_date = event['currentIntent']['slots']['sessionDate']
     session_score = event['currentIntent']['slots']['sessionScore']
     session_id = event['currentIntent']['slots']['sessionID']
+    if session_id = 'start_over':
+        start_from = 0
     record_id = context.aws_request_id
 
     #start with if not session_id
     if not session_id:
         last_month = datetime.now() - timedelta(days=30)
         last_month = last_month.strftime("%Y-%m-%d")
-        mySession = get_session(last_month)
-        logger.info(mySession)
+        my_session = get_session(last_month)
+        logger.info(my_session)
 
-        if mySession:
-            return elicit_slot({'start_from': start_from + 2}, intent, event['currentIntent']['slots'], 'sessionID',
+        if my_session:
+            next_start = start_from + 2
+            if len (my_session) < next_start:
+                next_start = 0
+            return elicit_slot({'start_from': next_start}, intent, event['currentIntent']['slots'], 'sessionID',
             {'contentType': 'PlainText', 'content': 'Please select a session from the next cards.'},
-            build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(mySession, start_from))
+            build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(my_session, start_from))
             )
 
         else:
-            mySession = get_session(last_month)
+            my_session = get_session(last_month)
             return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionID',
             {'contentType': 'PlainText', 'content': 'There are no public sesions from the last month. If you have a specific session ID, please provide it now'},
             None)
