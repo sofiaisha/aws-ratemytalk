@@ -247,7 +247,7 @@ def get_my_talks(event, context):
 
     else:
         if session_score:
-            if int(session_score)>5 or int(session_score)<1:
+            if int(float(session_score))>5 or int(float(session_score))<1:
                 return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionScore',
                 {'contentType': 'PlainText', 'content': 'Your score must be *between 1 and 5*'},
                 None)
