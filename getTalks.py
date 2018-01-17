@@ -92,7 +92,7 @@ def build_options(sessions, start_from = 0):
     for i in range(start_from, (min(len(sessions), start_from + 2))):
         options.append({'text': sessions[i]['topic'], 'value': sessions[i]['session_id']})
     if len(options)>1 and i+1 < len(sessions):
-        options.append({'text': 'More Sessions', 'value': 'more'})
+        options.append({'text': '*More Sessions*', 'value': ''})
     else:
         options.append({'text': '*Start Over*', 'value': 'start_over'})
 
@@ -106,11 +106,6 @@ def get_session(session_date):
             ScanIndexForward=False
         )
         items = response[u'Items']
-
-        #if last_key:
-            #additional_data = {"topic": "More Sessions",
-            #"session_id": "more"}
-            #items.append(additional_data)
 
         buttons = []
 
@@ -131,7 +126,8 @@ def get_session_details(session_id):
                 'session_id': session_id
             }
         )
-        items = response['Item']
+        if response:
+            items = response['Item']
         if items:
             return items
         else:
@@ -222,6 +218,7 @@ def get_my_talks(event, context):
     session_id = event['currentIntent']['slots']['sessionID']
     if session_id == 'start_over':
         start_from = 0
+
     record_id = context.aws_request_id
 
     #start with if not session_id
@@ -235,12 +232,13 @@ def get_my_talks(event, context):
             next_start = start_from + 2
             if len (my_session) < next_start:
                 next_start = 0
+            logger.info('Responding with: dialogAction type Elicit Slot sessionID')
             return elicit_slot({'start_from': next_start}, intent, event['currentIntent']['slots'], 'sessionID',
             None,
             build_response_card('Availible Sessions', 'Please select a session you would like to rate.', build_options(my_session, start_from))
             )
         else:
-            my_session = get_session(last_month)
+            logger.info('Responding with: dialogAction type Elicit Slot sessionID')
             return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionID',
             {'contentType': 'PlainText', 'content': 'There are no public sesions from the last month. If you have a specific session ID, please provide it now'},
             None)
@@ -248,18 +246,22 @@ def get_my_talks(event, context):
     else:
         if session_score:
             if int(float(session_score))>5 or int(float(session_score))<1:
+                logger.info('Responding with: dialogAction type Elicit Slot sessionScore')
                 return elicit_slot(None, intent, event['currentIntent']['slots'], 'sessionScore',
                 {'contentType': 'PlainText', 'content': 'Your score must be *between 1 and 5*'},
                 None)
             if event['currentIntent']['confirmationStatus']=='None':
+                logger.info('Responding with: dialogAction type Confirm')
                 return confirm_intent(None, intent, event['currentIntent']['slots'],
                 {'contentType': 'PlainText', 'content': 'Are you OK with sending the score %s for the session %s on %s?' %
                 (session_score, session_name, datetime.strptime(session_date,'%Y-%m-%d').strftime("%B %d, %Y"))}, None)
             elif event['currentIntent']['confirmationStatus']=='Denied':
+                logger.info('Responding with: dialogAction type Close')
                 return close({'start_from': 0}, 'Failed',
                 {'contentType': 'PlainText', 'content': 'Thanks. You can start over by typing *Rate a talk*'})
             else:
                 save_data(get_full_session(session_id, session_score, event), record_id)
+                logger.info('Responding with: dialogAction type Close')
                 return close({'start_from': 0}, 'Fulfilled',
                 {'contentType': 'PlainText', 'content': 'Thank you for rating the session!'})
         else:
