@@ -92,7 +92,7 @@ def build_options(sessions, start_from = 0):
     for i in range(start_from, (min(len(sessions), start_from + 2))):
         options.append({'text': sessions[i]['topic'], 'value': sessions[i]['session_id']})
     if len(options)>1 and i+1 < len(sessions):
-        options.append({'text': '*More Sessions*', 'value': ''})
+        options.append({'text': '*More Sessions*', 'value': 'more'})
     else:
         options.append({'text': '*Start Over*', 'value': 'start_over'})
 
