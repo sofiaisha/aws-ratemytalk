@@ -126,7 +126,7 @@ def get_session_details(session_id):
                 'session_id': session_id
             }
         )
-        if response:
+        if response['Item']:
             items = response['Item']
         if items:
             return items
