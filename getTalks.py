@@ -218,6 +218,9 @@ def get_my_talks(event, context):
     session_id = event['currentIntent']['slots']['sessionID']
     if session_id == 'start_over':
         start_from = 0
+        session_id = None
+    if session_id == 'more':
+        session_id = None
 
     record_id = context.aws_request_id
 
