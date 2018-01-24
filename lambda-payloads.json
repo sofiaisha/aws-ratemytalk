@@ -1,0 +1,50 @@
+{
+    "getMyTalks": {
+        "lambda": {
+            "currentIntent": {
+                "slots": {
+                    "sessionDate": "",
+                    "sessionScore": [],
+                    "sessionName": [],
+                    "sessionID": []
+                },
+                "confirmationStatus": "",
+                "name": "RateTalk",
+                "slotDetails": {
+                    "sessionDate": {
+                        "originalValue": "",
+                        "resolutions": []
+                    },
+                    "sessionScore": {
+                        "originalValue": "",
+                        "resolutions": []
+                    },
+                    "sessionName": {
+                        "originalValue": "",
+                        "resolutions": []
+                    }
+                }
+            },
+            "userId": "1778253185549356",
+            "bot": {
+                "alias": "Prod",
+                "version": "2",
+                "name": "rateMyTalk"
+            },
+            "inputTranscript": "yes",
+            "requestAttributes": {
+                "x-amz-lex:channel-name": "BotFacebookAssociation",
+                "x-amz-lex:user-id": "1778253185549356",
+                "x-amz-lex:webhook-endpoint-url": "https://channels.lex.us-east-1.amazonaws.com/facebook/webhook/10e64efa-290c-43a5-94ed-c8948c7f7e88",
+                "x-amz-lex:channel-id": "10e64efa-290c-43a5-94ed-c8948c7f7e88",
+                "x-amz-lex:accept-content-types": "PlainText",
+                "x-amz-lex:channel-type": "Facebook",
+                "x-amz-lex:facebook-page-id": "EAAKzDUwvUB0BAM8umcYXInaTZAFs34XsOfgzlwiAA8rZAZAxZCGt0IBpXmHph3ZAMTnPnc4HAUuKla8UP27I48ZBsgBIjOtBDZAd7ZBnqMxbZBcM4arZAAvSBN4wDZCmiCGYYgIE0rZCDWk4NZC3m8jVYvLt6sspPOtfg1ZBvYmELFTY1JZCwZDZD"
+            },
+            "invocationSource": "DialogCodeHook",
+            "outputDialogMode": "Text",
+            "messageVersion": "1.0",
+            "sessionAttributes": null
+        }
+    }
+}

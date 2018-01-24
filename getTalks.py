@@ -99,26 +99,32 @@ def build_options(sessions, start_from = 0):
     return options
 
 def get_session(session_date):
-    try:
-        response = table.query(
-            IndexName='public-date-index',
-            KeyConditionExpression=Key('public').eq(1),
-            ScanIndexForward=False
-        )
-        items = response[u'Items']
-
-        buttons = []
-
-        if items:
-            for item in items:
-                buttons.append(item)
-
-        return buttons
-
-    except ClientError as e:
-        logger.error(e.response['Error']['Message'])
-        return None
-
+    filename = 'sessions_list'
+    cache = read_cache(filename)
+    if not cache:
+        try:
+            response = table.query(
+                IndexName='public-date-index',
+                KeyConditionExpression=Key('public').eq(1) & Key('date').lte(datetime.now().strftime("%Y-%m-%d")),
+                ScanIndexForward=False
+            )
+            items = response[u'Items']
+    
+            buttons = []
+    
+            if items:
+                for item in items:
+                    buttons.append(item)
+            
+            store_cache(filename, buttons)
+            return buttons
+    
+        except ClientError as e:
+            logger.error(e.response['Error']['Message'])
+            return None
+    else:
+        return cache
+        
 def get_session_details(session_id):
     try:
         response = table.get_item(
@@ -202,6 +208,30 @@ def save_data(record, record_id):
     except Exception as e:
         print("Failed to insert into ES. %s" % (e))
         print(json.dumps(record))
+        
+def store_cache(filename, data):
+    file = open('/tmp/%s' % filename,'w')
+    json.dump(data, file, cls=DecimalEncoder) 
+    file.close() 
+    
+    logger.info('Wrote cache to %s: %s' % (filename, data))
+    return True
+    
+def read_cache(filename):
+    return False
+    
+    try:
+        file = open('/tmp/%s' % filename,'r') 
+        print file
+        data = file.read() 
+        file.close()
+        
+        logger.info('Wrote cache to %s: %s' % (filename, data))
+        return data
+        
+    except Exception as e:
+        logger.warning("Failed to read cache file %s. %s" % (filename, e))
+    
 
 def get_my_talks(event, context):
     logger.info('Received event: ' + json.dumps(event))
@@ -229,7 +259,6 @@ def get_my_talks(event, context):
         last_month = datetime.now() - timedelta(days=30)
         last_month = last_month.strftime("%Y-%m-%d")
         my_session = get_session(last_month)
-        logger.info(my_session)
 
         if my_session:
             next_start = start_from + 2
