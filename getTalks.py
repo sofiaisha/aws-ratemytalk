@@ -249,9 +249,7 @@ def get_my_talks(event, context):
     session_text = event['inputTranscript']
 
     com_client = boto3.client('comprehend')
-    com_response = com_client.detect_entities(
-    Text=session_text,
-    LanguageCode='en')
+    com_response = com_client.detect_entities(Text=session_text, LanguageCode='en')
     logger.info('Comprehand: ' + com_response)
 
     if session_id == 'start_over':
