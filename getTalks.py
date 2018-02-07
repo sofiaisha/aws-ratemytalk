@@ -109,22 +109,22 @@ def get_session(session_date):
                 ScanIndexForward=False
             )
             items = response[u'Items']
-    
+
             buttons = []
-    
+
             if items:
                 for item in items:
                     buttons.append(item)
-            
+
             store_cache(filename, buttons)
             return buttons
-    
+
         except ClientError as e:
             logger.error(e.response['Error']['Message'])
             return None
     else:
         return cache
-        
+
 def get_session_details(session_id):
     try:
         response = table.get_item(
@@ -208,30 +208,30 @@ def save_data(record, record_id):
     except Exception as e:
         print("Failed to insert into ES. %s" % (e))
         print(json.dumps(record))
-        
+
 def store_cache(filename, data):
     file = open('/tmp/%s' % filename,'w')
-    json.dump(data, file, cls=DecimalEncoder) 
-    file.close() 
-    
+    json.dump(data, file, cls=DecimalEncoder)
+    file.close()
+
     logger.info('Wrote cache to %s: %s' % (filename, data))
     return True
-    
+
 def read_cache(filename):
     return False
-    
+
     try:
-        file = open('/tmp/%s' % filename,'r') 
+        file = open('/tmp/%s' % filename,'r')
         print file
-        data = file.read() 
+        data = file.read()
         file.close()
-        
+
         logger.info('Wrote cache to %s: %s' % (filename, data))
         return data
-        
+
     except Exception as e:
         logger.warning("Failed to read cache file %s. %s" % (filename, e))
-    
+
 
 def get_my_talks(event, context):
     logger.info('Received event: ' + json.dumps(event))
@@ -246,6 +246,14 @@ def get_my_talks(event, context):
     session_date = event['currentIntent']['slots']['sessionDate']
     session_score = event['currentIntent']['slots']['sessionScore']
     session_id = event['currentIntent']['slots']['sessionID']
+    session_text = event['inputTranscript']
+
+    com_client = boto3.client('comprehend')
+    com_response = com_client.detect_entities(
+    Text=session_text,
+    LanguageCode='en')
+    logger.info('Comprehand: ' + com_response)
+
     if session_id == 'start_over':
         start_from = 0
         session_id = None
