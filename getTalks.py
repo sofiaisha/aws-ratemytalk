@@ -252,6 +252,9 @@ def get_my_talks(event, context):
     com_response = com_client.detect_entities(Text=session_text, LanguageCode='en')
     logger.info('Comprehand: ' + json.dumps(com_response))
 
+    com_response = com_client.detect_key_phrases(Text=session_text, LanguageCode='en')
+    logger.info('Comprehand: ' + json.dumps(com_response))
+    
     if session_id == 'start_over':
         start_from = 0
         session_id = None
