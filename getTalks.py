@@ -146,7 +146,10 @@ def get_session_details(session_id):
 
 def get_full_session(session_id, session_score, event):
     user_id = event['userId']
-    channel = event['requestAttributes']['x-amz-lex:channel-name']
+    if event['requestAttributes']:
+        channel = event['requestAttributes']['x-amz-lex:channel-name']
+    else:
+        channel = 'External'
     try:
         response = table.get_item(
             Key={
