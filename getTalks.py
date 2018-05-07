@@ -221,12 +221,13 @@ def store_cache(filename, data):
     return True
 
 def read_cache(filename):
-    #return False
+    return False
 
     try:
         file = open('/tmp/%s' % filename,'r')
         print file
         data = file.read()
+        #TODO: Convert the file to the right format (list?)
         file.close()
 
         logger.info('Got cache from %s: %s' % (filename, data))
