@@ -218,7 +218,7 @@ def store_cache(filename, data):
     return True
 
 def read_cache(filename):
-    return False
+    #return False
 
     try:
         file = open('/tmp/%s' % filename,'r')
