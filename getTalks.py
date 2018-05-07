@@ -226,7 +226,7 @@ def read_cache(filename):
         data = file.read()
         file.close()
 
-        logger.info('Wrote cache to %s: %s' % (filename, data))
+        logger.info('Got cache from %s: %s' % (filename, data))
         return data
 
     except Exception as e:
