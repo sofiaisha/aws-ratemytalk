@@ -105,7 +105,8 @@ def get_session(session_date):
         try:
             response = table.query(
                 IndexName='public-date-index',
-                KeyConditionExpression=Key('public').eq(1) & Key('date').lte(datetime.now().strftime("%Y-%m-%d")),
+                #KeyConditionExpression=Key('public').eq(1) & Key('date').lte(datetime.now().strftime("%Y-%m-%d")),
+                KeyConditionExpression=Key('public').eq(1),
                 ScanIndexForward=False
             )
             items = response[u'Items']
